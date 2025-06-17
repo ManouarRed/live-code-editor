@@ -1,14 +1,14 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { CodeEditorProps, EditorSectionProps } from '../types';
 import { EditableSyntaxHighlighter } from './EditableSyntaxHighlighter';
 
 const EditorSection: React.FC<EditorSectionProps> = ({ title, language, value, onChange, isExpanded, onToggle }) => {
   const [isFlashing, setIsFlashing] = useState(false);
-  const editorRef = useRef<HTMLDivElement | HTMLTextAreaElement>(null); // Ref for the actual input element
-
+  
   const handleLocalChange = (newValue: string) => {
     onChange(newValue);
-    if (!isFlashing) { // Prevent re-triggering animation if already active
+    if (!isFlashing) {
       setIsFlashing(true);
     }
   };
@@ -17,18 +17,17 @@ const EditorSection: React.FC<EditorSectionProps> = ({ title, language, value, o
     if (isFlashing) {
       const timer = setTimeout(() => {
         setIsFlashing(false);
-      }, 400); // Duration of the flash animation (must match CSS)
+      }, 300); // Duration of the flash animation
       return () => clearTimeout(timer);
     }
   }, [isFlashing]);
 
-  // Increased font size from text-sm to text-base for a larger caret
-  const editorBaseClasses = `w-full p-3 font-mono text-base focus:outline-none min-h-[50px] matrix-editor-text ${isFlashing ? 'text-flash-active' : ''}`;
+  const editorBaseClasses = `w-full p-3 font-mono text-base focus:outline-none min-h-[50px] editor-text-base ${isFlashing ? 'text-flash-active' : ''}`;
   
   return (
-    <div className={`flex flex-col rounded-lg shadow-md overflow-hidden matrix-editor-bg ${isExpanded ? 'flex-1 min-h-0' : 'flex-none'}`}>
+    <div className={`flex flex-col rounded-lg shadow-md overflow-hidden editor-section-bg ${isExpanded ? 'flex-1 min-h-0' : 'flex-none'}`}>
       <div 
-        className="flex justify-between items-center p-3 matrix-header-bg matrix-text-header border-b cursor-pointer"
+        className="flex justify-between items-center p-3 editor-header-bg editor-text-header border-b editor-border-strong cursor-pointer"
         onClick={onToggle}
         aria-expanded={isExpanded}
         aria-controls={`editor-section-${language}`}
@@ -40,7 +39,7 @@ const EditorSection: React.FC<EditorSectionProps> = ({ title, language, value, o
           {title}
         </h2>
         <button
-          className="text-gray-400 hover:text-gray-100 transition-transform duration-200"
+          className="text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] transition-transform duration-200"
           style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
           aria-label={isExpanded ? `Collapse ${title} editor` : `Expand ${title} editor`}
         >
@@ -50,23 +49,23 @@ const EditorSection: React.FC<EditorSectionProps> = ({ title, language, value, o
         </button>
       </div>
       {isExpanded && (
-        <div id={`editor-section-${language}`} className="flex-1 min-h-0 overflow-auto">
+        <div 
+          id={`editor-section-${language}`} 
+          className="flex-1 min-h-0 overflow-auto relative" // position: relative for fake caret
+        >
           {language === 'html' || language === 'css' ? (
             <EditableSyntaxHighlighter
-              // @ts-ignore TODO: Fix ref type for EditableSyntaxHighlighter if it directly exposes its div
-              ref={editorRef as React.RefObject<HTMLDivElement>}
               value={value}
               language={language}
               onChange={handleLocalChange}
-              className={`${editorBaseClasses} whitespace-pre-wrap`}
+              className={`${editorBaseClasses} whitespace-pre-wrap syntax-highlighter-editable`}
             />
           ) : (
             <textarea
-              ref={editorRef as React.RefObject<HTMLTextAreaElement>}
               value={value}
               onChange={(e) => handleLocalChange(e.target.value)}
               placeholder={`Enter ${language} code here...`}
-              className={`${editorBaseClasses} resize-none h-full`} // Ensure textarea takes full height
+              className={`${editorBaseClasses} resize-none h-full bg-[var(--theme-bg-editor)]`} 
               spellCheck="false"
               aria-label={`${title} code editor`}
             />
