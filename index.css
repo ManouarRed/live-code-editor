@@ -1,0 +1,42 @@
+
+/* Ensure any existing styles are preserved if this file had content */
+body {
+  margin: 0; /* Tailwind might handle this, but good practice */
+}
+
+/* Basic scrollbar styling for a more consistent look with dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #2d3748; /* gray-800 */
+}
+::-webkit-scrollbar-thumb {
+  background: #4a5568; /* gray-600 */
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #718096; /* gray-500 */
+}
+
+/* Syntax Highlighting Token Styles */
+.token-comment { color: #6a9955; font-style: italic; } /* Green, italic */
+.token-tag { color: #569cd6; } /* Blue */
+.token-attr-name { color: #9cdcfe; } /* Light blue */
+.token-attr-value { color: #ce9178; } /* Orange */
+.token-selector { color: #d7ba7d; } /* Yellow-ish for CSS selectors */
+.token-property { color: #569cd6; } /* Blue for CSS properties */
+.token-css-value { color: #ce9178; } /* Orange for CSS values */
+.token-punctuation { color: #d4d4d4; } /* Default light gray for punctuation like <, >, =, quotes */
+
+/* Ensure contentEditable div has a visible caret */
+[contenteditable="true"] {
+  caret-color: #e2e8f0; /* Tailwind gray-200, or your preferred caret color */
+}
+
+/* Style for focused contentEditable div (matches textarea) */
+[contenteditable="true"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6; /* Equivalent to focus:ring-2 focus:ring-blue-500 */
+}
