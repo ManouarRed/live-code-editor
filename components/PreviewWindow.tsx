@@ -6,7 +6,7 @@ export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.Reac
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    const updatePreview = (): void => { // Added explicit :void return type
+    const updatePreview = (): void => {
       if (iframeRef.current) {
         const document = iframeRef.current.contentDocument;
         if (document) {
@@ -45,6 +45,7 @@ export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.Reac
           document.close();
         }
       }
+      return; // Explicitly return void
     };
     
     // Debounce the update
