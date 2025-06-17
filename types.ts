@@ -22,7 +22,16 @@ export interface PreviewWindowProps {
 
 export interface EditorSectionProps {
   title: string;
-  language: string;
+  language: 'html' | 'css' | 'javascript';
   value: string;
   onChange: (value: string) => void;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+export interface EditableSyntaxHighlighterProps {
+  value: string;
+  language: 'html' | 'css';
+  onChange: (value: string) => void;
+  className?: string;
 }
