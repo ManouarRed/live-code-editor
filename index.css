@@ -1,4 +1,5 @@
 
+
 /* VS Code/Sublime Text Inspired Dark Theme */
 body {
   margin: 0;
@@ -11,7 +12,7 @@ body {
   --theme-text-secondary: #808080; /* Dimmer text, placeholders */
   --theme-text-header: #CCCCCC; /* Header text */
 
-  --theme-caret-color: #AEAFAD; /* Caret color */
+  --theme-caret-color: #AEAFAD; /* Original caret color, kept for other potential uses */
   --theme-focus-ring: #007ACC; /* Focus outline color */
   --theme-flash-color: #FFFFFF; /* Text flash on change (can be kept or removed) */
 
@@ -49,7 +50,7 @@ body {
 .editor-text-base {
   color: var(--theme-text-primary);
   font-family: 'Consolas', 'Menlo', 'Courier New', Courier, monospace;
-  caret-color: var(--theme-caret-color); /* For textarea */
+  /* caret-color is now specific to textarea or handled by fake-caret */
   line-height: 1.6; /* Consistent line height */
 }
 
@@ -75,7 +76,7 @@ body {
 }
 
 textarea.editor-text-base { /* JS editor still uses native caret */
-  caret-color: var(--theme-caret-color);
+  caret-color: red; /* BIG RED CARET for JS editor */
   caret-shape: block;
 }
 
@@ -114,8 +115,8 @@ textarea:focus {
 /* JS Simulated Caret */
 .fake-caret {
   position: absolute;
-  width: 2px; /* Standard editor caret width */
-  background-color: var(--theme-caret-color);
+  width: 8px; /* BIG BIG BIG */
+  background-color: red; /* RED */
   animation: blink 1.0s step-end infinite;
   pointer-events: none; 
   z-index: 10; 
