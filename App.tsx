@@ -1,14 +1,14 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { CodeEditor } from './components/CodeEditor';
 import { PreviewWindow } from './components/PreviewWindow';
 import type { CodeState } from './types';
 
 const DEFAULT_HTML = `<!-- Welcome to the Code Editor! -->
 <div class="container">
-  <h1>Hello, Coder!</h1>
-  <p style="color: #9CDCFE;">Edit HTML, CSS, and JavaScript on the left.</p>
-  <p>See your changes live on the right!</p>
+  <h1 style="color: #569CD6; font-family: 'Segoe UI', sans-serif;">Hello, Coder!</h1>
+  <p style="color: #9CDCFE; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">Edit HTML, CSS, and JavaScript on the left.</p>
+  <p style="font-weight: bold;">See your changes live on the right!</p>
   <button id="actionButton">Test JS</button>
 </div>
 
@@ -100,6 +100,10 @@ function addDynamicMessage() {
 setTimeout(addDynamicMessage, 1500);
 `;
 
+const HISTORY_LIMIT = 50;
+
+type HistoryEntry = { html: string; css: string; js: string; };
+
 const App: React.FC = () => {
   const [code, setCode] = useState<CodeState>({
     html: DEFAULT_HTML,
@@ -107,32 +111,117 @@ const App: React.FC = () => {
     js: DEFAULT_JS,
   });
 
-  const handleHtmlChange = useCallback((value: string) => {
-    setCode(prev => ({ ...prev, html: value }));
+  const undoStackRef = useRef<HistoryEntry[]>([]);
+  const redoStackRef = useRef<HistoryEntry[]>([]);
+  // To prevent pushing initial state or same state multiple times
+  const lastPushedStateRef = useRef<CodeState | null>(null);
+
+  const pushToUndoStack = useCallback((currentState: CodeState) => {
+    if (lastPushedStateRef.current && 
+        lastPushedStateRef.current.html === currentState.html &&
+        lastPushedStateRef.current.css === currentState.css &&
+        lastPushedStateRef.current.js === currentState.js) {
+      return; // Avoid pushing identical state
+    }
+
+    undoStackRef.current = [...undoStackRef.current, currentState].slice(-HISTORY_LIMIT);
+    redoStackRef.current = []; // Clear redo stack on new change
+    lastPushedStateRef.current = currentState; // Update last pushed state
   }, []);
+
+  const handleHtmlChange = useCallback((value: string) => {
+    pushToUndoStack(code);
+    setCode(prev => ({ ...prev, html: value }));
+  }, [code, pushToUndoStack]);
 
   const handleCssChange = useCallback((value: string) => {
+    pushToUndoStack(code);
     setCode(prev => ({ ...prev, css: value }));
-  }, []);
+  }, [code, pushToUndoStack]);
 
   const handleJsChange = useCallback((value: string) => {
+    pushToUndoStack(code);
     setCode(prev => ({ ...prev, js: value }));
-  }, []);
+  }, [code, pushToUndoStack]);
+
+  const handleUndo = useCallback(() => {
+    if (undoStackRef.current.length > 0) {
+      const previousState = undoStackRef.current[undoStackRef.current.length - 1];
+      undoStackRef.current = undoStackRef.current.slice(0, -1);
+      redoStackRef.current = [code, ...redoStackRef.current].slice(-HISTORY_LIMIT);
+      setCode(previousState);
+      lastPushedStateRef.current = previousState; // Update last state to prevent immediate re-push
+    }
+  }, [code]);
+
+  const handleRedo = useCallback(() => {
+    if (redoStackRef.current.length > 0) {
+      const nextState = redoStackRef.current[0];
+      redoStackRef.current = redoStackRef.current.slice(1);
+      undoStackRef.current = [...undoStackRef.current, code].slice(-HISTORY_LIMIT);
+      setCode(nextState);
+      lastPushedStateRef.current = nextState; // Update last state
+    }
+  }, [code]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) { // Meta key for MacOS
+        if (event.key === 'z' || event.key === 'Z') {
+          event.preventDefault();
+          if (event.shiftKey) {
+            handleRedo();
+          } else {
+            handleUndo();
+          }
+        } else if (event.key === 'y' || event.key === 'Y') {
+          event.preventDefault();
+          handleRedo();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleUndo, handleRedo]);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-[var(--theme-bg-global)] text-[var(--theme-text-primary)]">
-      <div className="md:w-1/2 w-full h-1/2 md:h-full flex flex-col p-1 border-r editor-border-strong">
-        <CodeEditor
-          html={code.html}
-          css={code.css}
-          js={code.js}
-          onHtmlChange={handleHtmlChange}
-          onCssChange={handleCssChange}
-          onJsChange={handleJsChange}
-        />
+    <div className="flex flex-col h-screen bg-[var(--theme-bg-global)] text-[var(--theme-text-primary)]">
+      <div className="p-2 editor-header-bg border-b editor-border-strong flex items-center space-x-2">
+        <button
+          onClick={handleUndo}
+          disabled={undoStackRef.current.length === 0}
+          className="px-3 py-1 bg-[var(--theme-focus-ring)] text-white rounded disabled:opacity-50 hover:bg-opacity-80 transition-opacity"
+          aria-label="Undo change (Ctrl+Z)"
+        >
+          Undo
+        </button>
+        <button
+          onClick={handleRedo}
+          disabled={redoStackRef.current.length === 0}
+          className="px-3 py-1 bg-[var(--theme-focus-ring)] text-white rounded disabled:opacity-50 hover:bg-opacity-80 transition-opacity"
+          aria-label="Redo change (Ctrl+Y)"
+        >
+          Redo
+        </button>
+         <span className="text-sm text-[var(--theme-text-secondary)]"> (Ctrl+Z, Ctrl+Y/Ctrl+Shift+Z)</span>
       </div>
-      <div className="md:w-1/2 w-full h-1/2 md:h-full flex flex-col">
-        <PreviewWindow html={code.html} css={code.css} js={code.js} />
+      <div className="flex flex-col md:flex-row flex-1 min-h-0"> {/* Ensure flex-1 and min-h-0 for proper flex shrink/grow */}
+        <div className="md:w-1/2 w-full h-1/2 md:h-full flex flex-col p-1 border-r editor-border-strong overflow-hidden">
+          <CodeEditor
+            html={code.html}
+            css={code.css}
+            js={code.js}
+            onHtmlChange={handleHtmlChange}
+            onCssChange={handleCssChange}
+            onJsChange={handleJsChange}
+          />
+        </div>
+        <div className="md:w-1/2 w-full h-1/2 md:h-full flex flex-col overflow-hidden">
+          <PreviewWindow html={code.html} css={code.css} js={code.js} />
+        </div>
       </div>
     </div>
   );
