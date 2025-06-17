@@ -28,11 +28,15 @@ body {
 .token-selector { color: #d7ba7d; } /* Yellow-ish for CSS selectors */
 .token-property { color: #569cd6; } /* Blue for CSS properties */
 .token-css-value { color: #ce9178; } /* Orange for CSS values */
-.token-punctuation { color: #d4d4d4; } /* Default light gray for punctuation like <, >, =, quotes */
+.token-punctuation { color: #808080; } /* Medium Gray for <, >, =, quotes, braces, etc. */
+.token-entity { color: #569cd6; } /* Blue, similar to tags, for &nbsp; etc. */
 
-/* Ensure contentEditable div has a visible caret */
+
+/* Ensure contentEditable div has a visible caret and style it */
 [contenteditable="true"] {
   caret-color: #e2e8f0; /* Tailwind gray-200, or your preferred caret color */
+  caret-shape: block; /* Attempt to make the caret a block, for "big |" feel */
+  /* caret-width: 2px; /* Another option, but less support than shape */
 }
 
 /* Style for focused contentEditable div (matches textarea) */
