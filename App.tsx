@@ -4,85 +4,100 @@ import { CodeEditor } from './components/CodeEditor';
 import { PreviewWindow } from './components/PreviewWindow';
 import type { CodeState } from './types';
 
-const DEFAULT_HTML = `<h1>Hello, Live Preview!</h1>
-<p>Type your HTML content here.</p>
-<button id="myButton">Click Me</button>
-<div class="dynamic-box">Hover over me!</div>
+const DEFAULT_HTML = `<!-- Welcome to the Code Editor! -->
+<div class="container">
+  <h1>Hello, Coder!</h1>
+  <p style="color: #9CDCFE;">Edit HTML, CSS, and JavaScript on the left.</p>
+  <p>See your changes live on the right!</p>
+  <button id="actionButton">Test JS</button>
+</div>
+
+<style>
+  /* You can also embed styles here */
+  .container {
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #252526; /* Slightly different from main editor bg */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+</style>
 `;
 
-const DEFAULT_CSS = `body { 
-  font-family: Arial, sans-serif; 
-  margin: 20px; 
-  background-color: #f0f0f0; 
-  color: #333; 
+const DEFAULT_CSS = `/* Global styles for your preview */
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+  margin: 0; 
+  padding: 15px;
+  background-color: #121212; /* Dark background for preview content */
+  color: var(--theme-text-primary, #D4D4D4); 
   transition: background-color 0.3s ease;
 }
 
 h1 { 
-  color: steelblue; 
+  color: #569CD6; /* Blue for headings */
   text-align: center;
+  margin-bottom: 20px;
 }
 
 p {
-  color: #555;
+  line-height: 1.6;
+  margin-bottom: 10px;
 }
 
 button { 
-  padding: 10px 15px; 
-  background-color: #4CAF50; /* Green */
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px; 
+  background-color: #007ACC; 
   color: white; 
   border: none; 
   border-radius: 5px; 
   cursor: pointer;
-  display: block;
-  margin: 10px auto;
-  transition: background-color 0.3s ease;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
 }
 
 button:hover { 
-  background-color: #45a049; 
+  background-color: #005A9E; 
 }
 
-.dynamic-box {
-  width: 150px;
-  height: 100px;
-  background-color: orange;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 20px auto;
-  border-radius: 8px;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.dynamic-box:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+/* Example of a more specific selector */
+.container > p {
+  font-style: italic;
+  color: #808080; /* Secondary text color */
 }
 `;
 
-const DEFAULT_JS = `console.log("Preview JS initialized!");
+const DEFAULT_JS = `// JavaScript for your preview
+console.log("Preview JavaScript Initialized!");
 
-const button = document.getElementById("myButton");
+const button = document.getElementById("actionButton");
+
 if (button) {
   button.addEventListener("click", () => {
-    alert("Button clicked! JavaScript is working correctly.");
+    alert("JavaScript is working! Button clicked.");
+    
+    const header = document.querySelector('h1');
+    if (header) {
+      header.textContent = "JS Executed!";
+      header.style.color = '#B5CEA8'; // Change color on action
+    }
   });
 }
 
-const dynamicBox = document.querySelector(".dynamic-box");
-if (dynamicBox) {
-  dynamicBox.addEventListener("mouseenter", () => {
-    dynamicBox.textContent = "Magic!";
-    document.body.style.backgroundColor = "#e0e0ff";
-  });
-  dynamicBox.addEventListener("mouseleave", () => {
-    dynamicBox.textContent = "Hover over me!";
-    document.body.style.backgroundColor = "#f0f0f0";
-  });
+// Example: Add a new element
+function addDynamicMessage() {
+  const container = document.querySelector('.container');
+  if (container) {
+    const newMessage = document.createElement('p');
+    newMessage.textContent = 'This message was added by JavaScript dynamically.';
+    newMessage.style.color = '#CE9178'; // Orange-brown
+    container.appendChild(newMessage);
+  }
 }
+
+// Call it after a delay
+setTimeout(addDynamicMessage, 1500);
 `;
 
 const App: React.FC = () => {
@@ -105,8 +120,8 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-900 text-gray-100">
-      <div className="md:w-1/2 w-full h-1/2 md:h-full flex flex-col p-1 border-r border-gray-700">
+    <div className="flex flex-col md:flex-row h-screen bg-[var(--theme-bg-global)] text-[var(--theme-text-primary)]">
+      <div className="md:w-1/2 w-full h-1/2 md:h-full flex flex-col p-1 border-r editor-border-strong">
         <CodeEditor
           html={code.html}
           css={code.css}
