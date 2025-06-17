@@ -2,25 +2,25 @@
 import React, { useEffect, useRef } from 'react';
 import type { PreviewWindowProps } from '../types';
 
-export const PreviewWindow: React.FC<PreviewWindowProps> = ({ html, css, js }) => {
+export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.ReactElement => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    const updatePreview = () => {
+    const updatePreview = (): void => { // Added explicit :void return type
       if (iframeRef.current) {
         const document = iframeRef.current.contentDocument;
         if (document) {
           document.open();
-          document.write(`
+          document.write(\`
             <html>
               <head>
-                <style>${css}</style>
+                <style>\${css}</style>
               </head>
               <body>
-                ${html}
+                \${html}
                 <script>
                   try {
-                    ${js}
+                    \${js}
                   } catch (error) {
                     console.error("Error in preview JavaScript:", error);
                     const errorDiv = document.createElement('div');
@@ -28,19 +28,20 @@ export const PreviewWindow: React.FC<PreviewWindowProps> = ({ html, css, js }) =
                     errorDiv.style.bottom = '10px';
                     errorDiv.style.left = '10px';
                     errorDiv.style.padding = '10px';
-                    errorDiv.style.backgroundColor = 'rgba(255,0,0,0.8)';
-                    errorDiv.style.color = 'white';
+                    errorDiv.style.backgroundColor = 'rgba(128,0,0,0.8)'; // Dark red for error
+                    errorDiv.style.color = '#FF8888'; // Lighter red text
                     errorDiv.style.border = '1px solid darkred';
                     errorDiv.style.borderRadius = '5px';
-                    errorDiv.style.fontFamily = 'monospace';
-                    errorDiv.textContent = 'JS Error: ' + error.message;
+                    errorDiv.style.fontFamily = "'Courier New', Courier, monospace";
+                    errorDiv.style.fontSize = "12px";
+                    errorDiv.textContent = 'JS RUNTIME EXCEPTION: ' + (error as Error).message;
                     document.body.appendChild(errorDiv);
-                    setTimeout(() => errorDiv.remove(), 5000);
+                    setTimeout(() => errorDiv.remove(), 7000);
                   }
                 <\/script>
               </body>
             </html>
-          `);
+          \`);
           document.close();
         }
       }
@@ -54,14 +55,14 @@ export const PreviewWindow: React.FC<PreviewWindowProps> = ({ html, css, js }) =
 
   return (
     <div className="flex-1 w-full h-full bg-gray-100 overflow-hidden">
-       <h2 className="text-lg font-semibold p-3 bg-gray-700 text-gray-200 border-b border-gray-600">
+       <h2 className="text-lg font-semibold p-3 matrix-header-bg matrix-text-header border-b matrix-border-strong">
         Live Preview
       </h2>
       <iframe
         ref={iframeRef}
         title="Preview"
         sandbox="allow-scripts allow-same-origin" // allow-modals allow-forms allow-popups
-        className="w-full h-[calc(100%-48px)] border-0" // Adjust height to account for title
+        className="w-full h-[calc(100%-48px)] border-0 bg-white" // Preview content area remains standard for accurate rendering
         loading="lazy"
       />
     </div>
