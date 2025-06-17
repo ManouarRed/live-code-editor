@@ -34,7 +34,9 @@ export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.Reac
                     errorDiv.style.borderRadius = '5px';
                     errorDiv.style.fontFamily = "'Courier New', Courier, monospace";
                     errorDiv.style.fontSize = "12px";
-                    errorDiv.textContent = 'JS RUNTIME EXCEPTION: ' + (error as Error).message;
+                    // Sanitize error message
+                    const errorMessage = (error instanceof Error) ? error.message : String(error);
+                    errorDiv.textContent = 'JS RUNTIME EXCEPTION: ' + JSON.stringify(errorMessage).slice(1, -1);
                     document.body.appendChild(errorDiv);
                     setTimeout(() => errorDiv.remove(), 7000);
                   }
@@ -45,10 +47,8 @@ export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.Reac
           document.close();
         }
       }
-      // Explicit 'return;' removed; function implicitly returns void.
     };
     
-    // Debounce the update
     const timeoutId = setTimeout(updatePreview, 250);
     return () => clearTimeout(timeoutId);
 
@@ -62,8 +62,8 @@ export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.Reac
       <iframe
         ref={iframeRef}
         title="Preview"
-        sandbox="allow-scripts allow-same-origin" // allow-modals allow-forms allow-popups
-        className="w-full h-[calc(100%-48px)] border-0 bg-white" // Preview content area remains standard for accurate rendering
+        sandbox="allow-scripts allow-same-origin" 
+        className="w-full h-[calc(100%-48px)] border-0 bg-white" 
         loading="lazy"
       />
     </div>
