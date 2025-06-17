@@ -45,7 +45,7 @@ export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.Reac
           document.close();
         }
       }
-      return; // Explicitly return void
+      // Explicit 'return;' removed; function implicitly returns void.
     };
     
     // Debounce the update
