@@ -11,16 +11,16 @@ export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.Reac
         const document = iframeRef.current.contentDocument;
         if (document) {
           document.open();
-          document.write(\`
+          document.write(`
             <html>
               <head>
-                <style>\${css}</style>
+                <style>${css}</style>
               </head>
               <body>
-                \${html}
+                ${html}
                 <script>
                   try {
-                    \${js}
+                    ${js}
                   } catch (error) {
                     console.error("Error in preview JavaScript:", error);
                     const errorDiv = document.createElement('div');
@@ -41,7 +41,7 @@ export const PreviewWindow = ({ html, css, js }: PreviewWindowProps): React.Reac
                 <\/script>
               </body>
             </html>
-          \`);
+          `);
           document.close();
         }
       }
